@@ -1,0 +1,35 @@
+global:
+  # ignore edge weights?
+  ignore_edge_weights: true
+  display_graph_stats: false
+
+# reduce dimension?
+dim:
+  dimension: 100
+  reduce_dimension: true
+  # project at random?
+  random_projection: false
+
+# classifiers settings
+classification:
+  # standardize? -> seems to improve accuracy of adaboost
+  standardize: false
+  # normalize?
+  normalize: false
+
+# use fingerprints?
+fp:
+  use_fp: False
+  times:
+    - 8
+
+# use variance vector?
+vv:
+  use_var_vector: false
+
+# bag of words model?
+bow:
+  use_bow: false
+  # should we use word frequencies?
+  bow_weights: false
+
