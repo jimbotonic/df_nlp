@@ -1,5 +1,5 @@
 #
-# This file is part of Latassan.
+# This file is part of DF.
 # 
 # Latassan is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public
@@ -14,7 +14,7 @@
 # details.
 #
 # You should have received a copy of the GNU General Public
-# License along with Latassan; see the file COPYING.  If not
+# License along with DF; see the file COPYING.  If not
 # see <http://www.gnu.org/licenses/>.
 # 
 # Copyright (C) 2014 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
