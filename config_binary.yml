@@ -6,8 +6,8 @@ global:
 
 # reduce dimension?
 dim:
-  dimension: 3000
-  reduce_dimension: false
+  dimension: 100
+  reduce_dimension: true
   # project at random?
   random_projection: false
 
@@ -17,15 +17,15 @@ classification:
   dtree_depth: 2
   rf_n_estimators: 3000
   # standardize? -> seems to improve accuracy of adaboost
-  standardize: false
+  standardize: true
   # normalize?
   normalize: false
 
 # use fingerprints?
 fp:
-  use_fp: False
+  use_fp: false
   times:
-    - 8
+    - 6
 
 # use clusters?
 cs:

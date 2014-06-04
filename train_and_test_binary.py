@@ -130,7 +130,7 @@ if __name__ == '__main__':
 	test_female_keys = [f for f in ppr_keys if f not in male_keys and f not in training_female_keys] 
 
 	# compute average vector
-	print 'computing vectors min, max, average and variance'
+	print 'computing training vectors statistics (min, max, average and variance)'
 	dv = {}
 	for i in range(sample_size):
 		tm = training_male_keys[i]
@@ -145,6 +145,7 @@ if __name__ == '__main__':
 	# compute mean/variance/... vector
 	v_min,v_max,v_avg,v_var = MatrixUtils.get_min_max_avg_var_vectors(dv)
 
+	# get avg vector for training set (male blogs and female blogs)
 	dv1 = {}
 	for i in range(sample_size):
 		tm = training_male_keys[i]
@@ -195,19 +196,15 @@ if __name__ == '__main__':
 	if conf['dim']['reduce_dimension']:	
 		if not conf['dim']['random_projection']:
 			center = MatrixUtils.get_highest_entry_indices(pr, dimension, shell_vids)
-			#center = MatrixUtils.get_highest_entry_indices(vtrain_avg, dimension, shell_vids)
-			#center = MatrixUtils.get_highest_entry_indices(vtrain_var, dimension, shell_vids)
+			#center = MatrixUtils.get_highest_entry_indices(v_avg, dimension, shell_vids)
+			#center = MatrixUtils.get_highest_entry_indices(v_var, dimension, shell_vids)
 		else:
 			rids = random.sample(range(len(core_vids)), dimension) 
 			center = [core_vids[i] for i in rids]
 
 	if conf['dim']['reduce_dimension']:
-		print len(v1_avg), len(center)
-		print len(v2_avg), len(center)
 		v1_avg = MatrixUtils.get_reduced_vector(v1_avg, center)
 		v2_avg = MatrixUtils.get_reduced_vector(v2_avg, center)
-		print len(v1_avg), len(center)
-		print len(v2_avg), len(center)
 
 	print 'training SVM & RF'
 
@@ -283,21 +280,23 @@ if __name__ == '__main__':
 		tm = test_male_keys[i]
 		tf = test_female_keys[i]
 		vm,vf = get_vectors(tm, tf, p_ppr, conf, center, g, dsub_ids, kmats_names, dstats)
+
+		d_m1 = cityblock(v1_avg,vm)
+		d_m2 = cityblock(v2_avg,vm)
+		d_f1 = cityblock(v2_avg,vf)
+		d_f2 = cityblock(v1_avg,vf)
+
 		if standardize:
 			vm = MatrixUtils.standardize_vector(vm,v_avg,v_var)		
 			vf = MatrixUtils.standardize_vector(vf,v_avg,v_var)		
 		if normalize:
 			vm = MatrixUtils.normalize_vector(vm,v_min,v_max)		
 			vf = MatrixUtils.normalize_vector(vf,v_min,v_max)		
+
 		cm1 = rbf.predict([vm])[0]
 		cm2 = rf.predict([vm])[0]
 		cf1 = rbf.predict([vf])[0]
 		cf2 = rf.predict([vf])[0]
-		
-		d_m1 = cityblock(v1_avg,vm)
-		d_m2 = cityblock(v2_avg,vm)
-		d_f1 = cityblock(v2_avg,vf)
-		d_f2 = cityblock(v2_avg,vf)
 
 		if cm1 == 0:
 			correct1 += 1

@@ -27,10 +27,11 @@ import cPickle as pickle
 import logging
 import pp
 
-def get_fp(g,stats_dir,p):
-	a = [1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24]
+def get_fp(g,stats_dir,p,iw):
+	#a = [1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24]
+	a = [6]
 	p_stats = pickle.load(open(stats_dir + '/' + p, 'rb'))
-	return GraphUtils.get_fingerprint(g,p_stats,a)
+	return GraphUtils.get_fingerprint(g,p_stats,a,ignore_weights=iw)
 
 if __name__ == '__main__':
 	""" compute the diffusion fingerprints (arguments: <association_data_dir> <stats_data_dir> <g_filename> <ncpus> <ppr_filename>) """
@@ -46,10 +47,11 @@ if __name__ == '__main__':
 	fnames = FileUtils.get_files_list(data_dir)
 	logging.info('# of files: ' + str(len(fnames)))
 	g = pickle.load(open(sys.argv[3], 'rb'))
+	iw = True
 	p_ppr = {}
 	for i in range(10):
 		fns = fnames[100*i:100*(i+1)]
-		jobs = [(p, js.submit(get_fp,(g,stats_dir,p,),(GraphUtils,MatrixUtils,),('igraph','cPickle','utils','numpy','numpy.linalg',))) for p in fns]
+		jobs = [(p, js.submit(get_fp,(g,stats_dir,p,iw,),(GraphUtils,MatrixUtils,),('igraph','cPickle','utils','numpy','numpy.linalg',))) for p in fns]
 		for p, j in jobs:
 			p_ppr[p.replace('.p','')] = j()
 	pickle.dump(p_ppr, open(sys.argv[5], "wb"), pickle.HIGHEST_PROTOCOL)

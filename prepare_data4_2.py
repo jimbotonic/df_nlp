@@ -27,7 +27,7 @@ import cPickle as pickle
 import logging
 import pp
 
-def get_ppr(g,stats_dir,p,iw=True):
+def get_ppr(g,stats_dir,p,iw):
 	""" get diffusion fingerprint (use association matrices) """
 	p_stats = pickle.load(open(stats_dir + '/' + p, 'rb'))
 	return GraphUtils.my_personalized_pagerank(g,p_stats,ignore_weights=iw)
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     	js = pp.Server(ncpus, ppservers=ppservers)
 	data_dir = sys.argv[1]
 	stats_dir = sys.argv[2]
-	iw = False
+	iw = True
 	fnames = FileUtils.get_files_list(data_dir)
 	logging.info('# of files: ' + str(len(fnames)))
 	g = pickle.load(open(sys.argv[3], 'rb'))
