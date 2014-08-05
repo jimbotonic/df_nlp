@@ -137,10 +137,6 @@ if __name__ == '__main__':
 		tf = training_female_keys[i]
 		dv[tm] = p_ppr[tm]
 		dv[tf] = p_ppr[tf]
-		tm = test_male_keys[i]
-		tf = test_female_keys[i]
-		dv[tm] = p_ppr[tm]
-		dv[tf] = p_ppr[tf]
 		
 	# compute mean/variance/... vector
 	v_min,v_max,v_avg,v_var = MatrixUtils.get_min_max_avg_var_vectors(dv)
@@ -170,6 +166,7 @@ if __name__ == '__main__':
 
 	print 'computing pagerank'
 	pr = GraphUtils.my_pagerank(g,ignore_weights=conf['global']['ignore_edge_weights'])
+	#pickle.dump(pr, open(sys.argv[1].replace('g_', 'pr_'), 'wb'), pickle.HIGHEST_PROTOCOL)
 	print 'Pagerank entropy: ', MatrixUtils.entropy(pr)
 	print 'Pagerank variance: ', MatrixUtils.variance(pr)
 	print 'PPR avg FP coordinate variance: ', MatrixUtils.mean(v_var)

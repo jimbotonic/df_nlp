@@ -28,34 +28,49 @@ import cPickle as pickle
 if __name__ == '__main__':
 	""" copy <sample_size> male and female blogs """
 	source_dir = sys.argv[1]	
-	target_dir1 = sys.argv[2]	
-	target_dir2 = sys.argv[3]	
-	l = FileUtils.get_files_list(source_dir)
+	target_dir = sys.argv[2]	
+	l = FileUtils.get_files_list(source_dir, '.*\(1\).*')
 	rx = re.compile('.*\.male\..*')
-	rx2 = re.compile('.*\(1\).*')
 	males = []
 	females = []
-	sample_size = 500
-	done = []
-	male_OK = False
-	female_OK = False
+	nmales = 0
+	nfemales = 0
+	ntotal = 0
+	sample_size = 250
+
+	print '# files: ', len(l)
 
 	for p in l:
-		if rx2.match(p) and not p in males and not p in females:
+		if rx.match(p):
+			males.append(p)
+		else:
+			females.append(p)
+
+	while ntotal < sample_size*2 and (len(males)>0 or len(females)>0):
+		if len(males)>0 and (nmales < sample_size or (len(females) == 0 and ntotal < sample_size*2)):
+			p = males.pop()
 			p2 = p.replace('(1)', '(2)')
-			if rx.match(p):
-				if len(males) < sample_size:
-					FileUtils.copy_file(source_dir,target_dir1,p)
-					FileUtils.copy_file(source_dir,target_dir2,p2)
-					males.append(p)
-				else:
-					male_OK = True
-			else:
-				if len(females) < sample_size:
-					FileUtils.copy_file(source_dir,target_dir1,p)
-					FileUtils.copy_file(source_dir,target_dir2,p2)
-					females.append(p)
-				else:
-					female_OK = True
-			if male_OK and female_OK:
-				break
+			md = p.replace('(1)', '(main-doc)')
+			dp1 = p.replace('(1)', '(doc-part1)')
+			mp1 = p.replace('(1)', '(mat-part1)')
+			FileUtils.copy_file(source_dir,target_dir,p)
+			FileUtils.copy_file(source_dir,target_dir,p2)
+			FileUtils.copy_file(source_dir,target_dir,md)
+			FileUtils.copy_file(source_dir,target_dir,dp1)
+			FileUtils.copy_file(source_dir,target_dir,mp1)
+			nmales += 1
+			ntotal += 1
+		if len(females) and (nfemales < sample_size or (len(males) == 0 and ntotal < sample_size*2)):
+			p = females.pop()
+			p2 = p.replace('(1)', '(2)')
+			md = p.replace('(1)', '(main-doc)')
+			dp1 = p.replace('(1)', '(doc-part1)')
+			mp1 = p.replace('(1)', '(mat-part1)')
+			FileUtils.copy_file(source_dir,target_dir,p)
+			FileUtils.copy_file(source_dir,target_dir,p2)
+			FileUtils.copy_file(source_dir,target_dir,md)
+			FileUtils.copy_file(source_dir,target_dir,dp1)
+			FileUtils.copy_file(source_dir,target_dir,mp1)
+			nfemales += 1
+			ntotal += 1
+		print '# males: ', nmales, '# females: ', nfemales

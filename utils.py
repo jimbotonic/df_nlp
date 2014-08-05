@@ -106,6 +106,13 @@ class MatrixUtils:
 		return a
 
 	@staticmethod
+	def normalize_vector2(v):
+		norm=linalg.norm(v)
+		if norm == 0: 
+			return v
+		return v/norm
+
+	@staticmethod
 	def get_avg_fp_variance_entropy(d):
 		v = 0.
 		h = 0.
@@ -236,8 +243,8 @@ class MatrixUtils:
 		a2 = list(a)
 		i = len(b)
 		if ignore_ids:
-			for i in ignore_ids:
-				b[i] = -1
+			for j in ignore_ids:
+				b[j] = -1
 		b.sort()
 		indices = []
 		count = 0
@@ -302,13 +309,17 @@ class FileUtils:
 		return dic
 
 	@staticmethod
-	def get_files_list(dir_path):
-		return [f for f in listdir(dir_path) if isfile(join(dir_path,f)) ]
-
-	@staticmethod
-	def get_filtered_files_list(dir_path,regex):
-		p = re.compile(regex)
-		return [f for f in listdir(dir_path) if isfile(join(dir_path,f) and p.match(f)) ]
+	def get_files_list(dir_path,regex=None):
+		if not regex:
+			return [f for f in listdir(dir_path) if isfile(join(dir_path,f)) ]
+		else:
+			rx = re.compile(regex)
+			return [f for f in listdir(dir_path) if isfile(join(dir_path,f)) and rx.match(f)]
+			
+	#@staticmethod
+	#def get_filtered_files_list(dir_path,regex):
+	#	p = re.compile(regex)
+	#	return [f for f in listdir(dir_path) if isfile(join(dir_path,f) and p.match(f)) ]
 	
 	@staticmethod
 	def read_text_file(path):
@@ -316,6 +327,27 @@ class FileUtils:
 		txt = f.read()
 		f.close()
 		return txt
+
+	@staticmethod
+	def get_blog_posts(path):
+		blog = open(path, "r")
+		record = []
+		status = False
+		post = ''
+		for line in blog:
+			line = line.strip()
+			if len(line) > 0:
+				if status:
+					if line == '</post>':
+						status = False
+						record.append(post.strip())
+						post = ''
+					else:
+						post += ' ' + line
+				if not status and line == '<post>':
+					status = True
+		blog.close()
+		return record
 
 	@staticmethod
 	def copy_files_sample(src_dir,tgt_dir,n):
@@ -331,7 +363,7 @@ class FileUtils:
 	@staticmethod
 	def copy_filtered_files_sample(src_dir,tgt_dir,regex,n):
 		""" copy files whose names match the regex """
-		fl = FileUtils.get_filtered_files_list(src_dir,regex)
+		fl = FileUtils.get_files_list(src_dir,regex)
 		sl = random.sample(fl,n)
 		for p in sl:
 			shutil.copy(src_dir+'/'+p,tgt_dir+'/'+p)		
@@ -546,3 +578,16 @@ class GraphUtils:
 			if step in steps:
 				ft[step] = pr.values()
 		return ft
+
+	@staticmethod
+	def get_center_vids(g, dimension, rp=False, ig=True):
+		# print '# vertices: ', len(g.vs), '# edges: ', len(g.es)
+		core,core_vids,shell_vids = GraphUtils.get_core(g)	
+		pr = GraphUtils.my_pagerank(g,ignore_weights=ig)
+		pr = map(lambda (i,x): -1 if i in shell_vids else x, enumerate(pr))
+		if not rp:
+			center = MatrixUtils.get_highest_entry_indices(pr, dimension, shell_vids)
+		else:
+			rids = random.sample(range(len(core_vids)), dimension) 
+			center = [core_vids[i] for i in rids]
+		return center

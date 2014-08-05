@@ -70,7 +70,7 @@ if __name__ == '__main__':
 			print '# nnz entries: ', mat.vmat.nnz
 			if mat:
 				success_count += 1
-				pickle.dump(doc.token_stats, open(pickle_dir1 + '/' + p.replace('.xml','') + ".p", "wb"))
-				pickle.dump(mat, open(pickle_dir2 + '/' + p.replace('.xml','') + ".p", "wb"))
+				pickle.dump(doc.token_stats, open(pickle_dir1 + '/' + p.replace('.xml','') + ".p", "wb"), pickle.HIGHEST_PROTOCOL)
+				pickle.dump(mat, open(pickle_dir2 + '/' + p.replace('.xml','') + ".p", "wb"), pickle.HIGHEST_PROTOCOL)
 		print '---'
 

@@ -23,6 +23,7 @@
 from __future__ import division
 import sys
 from utils import *
+import re
 from igraph import Graph
 import cPickle as pickle
 import logging as log
@@ -35,28 +36,31 @@ if __name__ == '__main__':
 	graph_file_name = sys.argv[2]
 	fnames = FileUtils.get_files_list(data_dir)
 	names = sortedset()
+	rx = re.compile('.*\(mat-part1\).*')
 	density = 0.01
 	counter = 1
 	
 	# first pass: get names
 	log.info('getting names...') 
 	for p in fnames:
-		log.info(str(counter) + '- Adding words of matrix: ' + p) 
-		counter += 1
-		kmat = pickle.load(open(data_dir + '/' + p, 'rb'))
-		names = names.union(kmat.names)
-		if counter == 1000:
-			break
+		if rx.match(p):
+			log.info(str(counter) + '- Adding words of matrix: ' + p) 
+			counter += 1
+			kmat = pickle.load(open(data_dir + '/' + p, 'rb'))
+			names = names.union(kmat.names)
+			if counter == 1000:
+				break
 	umat = DomainMatrix(sps.lil_matrix((len(names),len(names)),dtype=float), names)
 	counter = 1	
 	# second pass: adding K matrices
 	for p in fnames:
-		log.info(str(counter) + '- Adding matrix: ' + p) 
-		counter += 1
-		kmat = pickle.load(open(data_dir + '/' + p, 'rb'))
-		umat = MatrixUtils.get_union_association_matrix(umat,kmat)
-		if counter == 1000:
-			break
+		if rx.match(p):
+			log.info(str(counter) + '- Adding matrix: ' + p) 
+			counter += 1
+			kmat = pickle.load(open(data_dir + '/' + p, 'rb'))
+			umat = MatrixUtils.get_union_association_matrix(umat,kmat)
+			if counter == 1000:
+				break
 
 	pickle.dump(umat, open('domain-mat_' + graph_file_name, 'wb'), pickle.HIGHEST_PROTOCOL)
 	g = GraphUtils.get_graph_from_matrix(umat,density)

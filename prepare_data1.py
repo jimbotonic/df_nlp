@@ -74,6 +74,6 @@ if __name__ == '__main__':
 				gk = GraphUtils.get_graph_from_matrix(mat,density)
 				print '# vertice/# edges/density: ', len(gk.vs), len(gk.es), len(gk.es)/(len(gk.vs)*(len(gk.vs)-1)) 
 				#pickle.dump(doc.token_stats, open(pickle_dir1 + '/' + p.replace('.xml','') + ".p", "wb"))
-				pickle.dump(gk, open(pickle_dir2 + '/' + p.replace('.xml','') + ".p", "wb"))
+				pickle.dump(gk, open(pickle_dir2 + '/' + p.replace('.xml','') + ".p", "wb"), pickle.HIGHEST_PROTOCOL)
 		print '---'
 
