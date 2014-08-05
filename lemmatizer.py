@@ -190,9 +190,11 @@ class DocStats:
 		# max token frequency
 		self.max_freq = max_f
 		self.metrics = metrics
+		# sequence of tokens
 		self.tokens = self.get_tokens()
 		# sorted set of tokens
 		self.token_set = self.get_sorted_token_set()
+		# token_stats: <token> -> <tokenstats instance>
 		self.freqs, self.token_stats = self.get_token_stats()
 
 	def get_tokens(self):

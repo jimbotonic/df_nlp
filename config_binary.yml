@@ -7,17 +7,17 @@ global:
 # reduce dimension?
 dim:
   dimension: 100
-  reduce_dimension: true
+  reduce_dimension: false
   # project at random?
   random_projection: false
 
 # classifiers settings
 classification:
-  ada_n_estimators: 3000
+  ada_n_estimators: 300
   dtree_depth: 2
   rf_n_estimators: 3000
   # standardize? -> seems to improve accuracy of adaboost
-  standardize: true
+  standardize: false
   # normalize?
   normalize: false
 
@@ -41,3 +41,5 @@ bow:
   # should we use word frequencies?
   bow_weights: false
 
+cross_validation:
+  n_parts: 10

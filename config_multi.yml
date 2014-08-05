@@ -5,8 +5,8 @@ global:
 
 # reduce dimension?
 dim:
-  dimension: 100
-  reduce_dimension: true
+  dimension: 11000
+  reduce_dimension: false
   # project at random?
   random_projection: false
 
