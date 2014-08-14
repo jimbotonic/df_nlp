@@ -14,7 +14,7 @@ prepare samples
 
 generate the domain graph for different set of input files 
 
-### prepare_data3* scripts
+### prepare_data4* scripts
  
-compute the diffusion fingerprints
+compute the diffusion fingerprints or the BOW vectors
 
