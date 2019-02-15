@@ -17,7 +17,7 @@
 # License along with DF; see the file COPYING.  If not
 # see <http://www.gnu.org/licenses/>.
 # 
-# Copyright (C) 2014 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
+# Copyright (C) 2014-2019 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
 #
 
 from __future__ import division
@@ -25,6 +25,7 @@ from igraph import Graph
 from numpy import linalg 
 from blist import sortedset,sortedlist
 from math import log
+import io
 
 from os import listdir
 from os.path import isfile, join
@@ -37,6 +38,8 @@ from numpy import sqrt
 from numpy import var
 import itertools
 import cPickle as pickle
+
+ENCODING='iso-8859-1'
 
 class AssociationMatrix:
 	""" square matrix of association values """
@@ -323,29 +326,31 @@ class FileUtils:
 	
 	@staticmethod
 	def read_text_file(path):
-		f = open(path, 'r')
-		txt = f.read()
+		#f = open(path, 'r', )
+                with io.open(path, 'r', encoding=ENCODING) as f:
+		    txt = f.read()
 		f.close()
 		return txt
 
 	@staticmethod
 	def get_blog_posts(path):
-		blog = open(path, "r")
-		record = []
-		status = False
-		post = ''
-		for line in blog:
-			line = line.strip()
-			if len(line) > 0:
-				if status:
-					if line == '</post>':
-						status = False
-						record.append(post.strip())
-						post = ''
-					else:
-						post += ' ' + line
-				if not status and line == '<post>':
-					status = True
+		#blog = open(path, "r")
+                with io.open(path, 'r', encoding=ENCODING) as blog:
+                    record = []
+                    status = False
+                    post = ''
+                    for line in blog:
+                            line = line.strip()
+                            if len(line) > 0:
+                                    if status:
+                                            if line == '</post>':
+                                                    status = False
+                                                    record.append(post.strip())
+                                                    post = ''
+                                            else:
+                                                    post += ' ' + line
+                                    if not status and line == '<post>':
+                                            status = True
 		blog.close()
 		return record
 

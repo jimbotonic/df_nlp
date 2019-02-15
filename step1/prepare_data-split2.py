@@ -17,7 +17,7 @@
 # License along with DF; see the file COPYING.  If not
 # see <http://www.gnu.org/licenses/>.
 # 
-# Copyright (C) 2014 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
+# Copyright (C) 2014-2019 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
 #
 
 from __future__ import division

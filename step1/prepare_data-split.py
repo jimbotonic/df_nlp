@@ -17,7 +17,7 @@
 # License along with DF; see the file COPYING.  If not
 # see <http://www.gnu.org/licenses/>.
 # 
-# Copyright (C) 2014 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
+# Copyright (C) 2014-2019 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
 #
 
 from __future__ import division
@@ -26,6 +26,7 @@ from lemmatizer import *
 from igraph import Graph
 from numpy import dot
 import cPickle as pickle
+import math
 
 if __name__ == '__main__':
         rgx = '\w+'
@@ -36,9 +37,9 @@ if __name__ == '__main__':
         # max frequency (between 0 and 1)
         max_freq = 1
 	# min number of tokens
-        min_size = 100
-        # max number of tokens
-        max_size = 1000
+	min_size = 100
+	# max number of tokens
+	max_size = 1000
 	# folder path
 	data_dir = sys.argv[1]
 	pickle_dir1 = sys.argv[2]
@@ -46,17 +47,15 @@ if __name__ == '__main__':
         # graph density
         density = 0.005
 	# collocation metrics instance to be used
-        cmetrics = CollocationMetrics(CollocationMetrics.decreasing_exp,(1,1),CollocationMetrics.info,())
+        cmetrics = CollocationMetrics(CollocationMetrics.decreasing_exp,(1,1),CollocationMetrics.do_nothing,())
 	# batch replace arrays
 	vold = ['</?blog>','</?Blog>','</?post>','<date>.*</date>','nbsp','urlLink']
 	vnew = ['','','','','','']
-	# normalize entries
-	normalize = True	
-	
+		
 	fnames = FileUtils.get_files_list(data_dir)
 
 	counter = 1
-	max_count = 2000
+	max_count = 3000
 	for p in fnames:
 		if counter == max_count:
 			break
@@ -67,13 +66,22 @@ if __name__ == '__main__':
         	doc = DocStats(txt, rgx, min_length, min_occ, max_freq, cmetrics)
 		print '# tokens: ', len(doc.token_set) 
         	if len(doc.token_set) >= min_size and len(doc.token_set) <= max_size:
-			mat = doc.get_collocation_mat(normalize)
-			print '# rows: ', mat.vmat.shape[0]
-			print '# nnz entries/# target edges: ', mat.vmat.nnz, len(doc.token_set)*(len(doc.token_set)-1)*density
-			if mat:
-				gk = GraphUtils.get_graph_from_matrix(mat,density)
-				print '# vertice/# edges/density: ', len(gk.vs), len(gk.es), len(gk.es)/(len(gk.vs)*(len(gk.vs)-1)) 
-				#pickle.dump(doc.token_stats, open(pickle_dir1 + '/' + p.replace('.xml','') + ".p", "wb"))
-				pickle.dump(gk, open(pickle_dir2 + '/' + p.replace('.xml','') + ".p", "wb"), pickle.HIGHEST_PROTOCOL)
+			i = txt.index(' ',int(math.ceil(len(txt)/2)))
+			txt1 = txt[:i]
+			txt2 = txt[i:] 
+        		doc1 = DocStats(txt1, rgx, min_length, min_occ, max_freq, cmetrics)
+        		doc2 = DocStats(txt2, rgx, min_length, min_occ, max_freq, cmetrics)
+			mat1 = doc1.get_collocation_mat()
+			mat2 = doc2.get_collocation_mat()
+			#print '# rows: ', mat.shape[0]
+			#print '# nnz entries/# target edges: ', mat.nnz, len(doc.token_set)*(len(doc.token_set)-1)*density
+			if mat1 and mat2:
+				gk1 = GraphUtils.get_graph_from_matrix(mat1.vmat,doc1.token_set,density)
+				gk2 = GraphUtils.get_graph_from_matrix(mat2.vmat,doc2.token_set,density)
+				# print '# vertice/# edges/density: ', len(gk.vs), len(gk.es), len(gk.es)/(len(gk.vs)*(len(gk.vs)-1)) 
+				pickle.dump(doc1.token_stats, open(pickle_dir1 + '/' + p.replace('.xml','') + "(1).p", "wb"))
+				pickle.dump(doc2.token_stats, open(pickle_dir1 + '/' + p.replace('.xml','') + "(2).p", "wb"))
+				pickle.dump(gk1, open(pickle_dir2 + '/' + p.replace('.xml','') + "(1).p", "wb"))
+				pickle.dump(gk2, open(pickle_dir2 + '/' + p.replace('.xml','') + "(2).p", "wb"))
 		print '---'
 

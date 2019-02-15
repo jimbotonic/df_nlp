@@ -17,27 +17,38 @@
 # License along with DF; see the file COPYING.  If not
 # see <http://www.gnu.org/licenses/>.
 # 
-# Copyright (C) 2014 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
+# Copyright (C) 2014-2019 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
 #
 
-from __future__ import division
-import sys
 from utils import *
-from igraph import Graph
+import re
+import sys
 import cPickle as pickle
-import logging as log
-import scipy.sparse as sps
 
 if __name__ == '__main__':
-	log.basicConfig(level=log.DEBUG,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
-	matrix_file_name = sys.argv[1]
-	graph_file_name = sys.argv[2]
-	density = float(sys.argv[3])
-	iw = False
+	""" copy <sample_size> male and female blogs """
+	source_dir = sys.argv[1]	
+	target_dir = sys.argv[2]	
+	l = FileUtils.get_files_list(source_dir)
+	rx = re.compile('.*\.male\..*')
+	males = []
+	females = []
+	sample_size = 500
+	male_OK = False
+	female_OK = False
 
-	umat = pickle.load(open(matrix_file_name, 'rb'))
-	g = GraphUtils.get_graph_from_matrix(umat,density,ignore_weights=iw)
-	log.info('#vertices, #edges: ' + str(len(g.vs)) + ', ' + str(len(g.es))) 
-	pickle.dump(g, open(graph_file_name, 'wb'))
-	
+	for p in l:
+		if rx.match(p):
+			if len(males) < sample_size:
+				FileUtils.copy_file(source_dir,target_dir,p)
+				males.append(p)
+			else:
+				male_OK = True
+		else:
+			if len(females) < sample_size:
+				FileUtils.copy_file(source_dir,target_dir,p)
+				females.append(p)
+			else:
+				female_OK = True
+		if male_OK and female_OK:
+			break

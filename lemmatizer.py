@@ -312,7 +312,7 @@ if __name__ == '__main__':
 	
 	###
 	txt = open(sys.argv[1], 'r').read()
-	cmetrics = CollocationMetrics(CollocationMetrics.decreasing_exp,(1,1),CollocationMetrics.info,())
+	cmetrics = CollocationMetrics(CollocationMetrics.decreasing_exp,(1,1),CollocationMetrics.information,())
 	doc = DocStats(txt, rgx, min_length, min_occ, max_freq, cmetrics)
 	#print doc.get_sorted_token_set()
 	#print doc.token_stats

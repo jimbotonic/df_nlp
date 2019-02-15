@@ -17,7 +17,7 @@
 # License along with DF; see the file COPYING.  If not
 # see <http://www.gnu.org/licenses/>.
 # 
-# Copyright (C) 2014 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
+# Copyright (C) 2014-2019 Jimmy Dubuisson <jimmy.dubuisson@gmail.com>
 #
 
 from __future__ import division
@@ -26,6 +26,7 @@ from utils import *
 from igraph import Graph
 import cPickle as pickle
 import logging as log
+import scipy.sparse as sps
 
 if __name__ == '__main__':
 	log.basicConfig(level=log.DEBUG,
@@ -33,19 +34,33 @@ if __name__ == '__main__':
 	data_dir = sys.argv[1]
 	graph_file_name = sys.argv[2]
 	fnames = FileUtils.get_files_list(data_dir)
-	vnames = sortedset()
-	enames = sortedset()
+	names = sortedset()
+	density = 0.01
 	counter = 1
+	
+	# first pass: get names
+	log.info('getting names...') 
 	for p in fnames:
-		log.info(str(counter) + '- Adding graph: ' + p) 
+		log.info(str(counter) + '- Adding words of matrix: ' + p) 
 		counter += 1
-		gk = pickle.load(open(data_dir + '/' + p, 'rb'))
-		vnames, enames = GraphUtils.get_union_by_name(gk,vnames, enames)
-		log.info('# vertices/# edges/density: ' + str(len(vnames)) + ' ' + str(len(enames)) + ' ' + str(len(enames)/(len(vnames)*(len(vnames)-1))))
+		kmat = pickle.load(open(data_dir + '/' + p, 'rb'))
+		names = names.union(kmat.names)
+		if counter == 1000:
+			break
+	umat = DomainMatrix(sps.lil_matrix((len(names),len(names)),dtype=float), names)
+	counter = 1	
+	# second pass: adding K matrices
+	for p in fnames:
+		log.info(str(counter) + '- Adding matrix: ' + p) 
+		counter += 1
+		kmat = pickle.load(open(data_dir + '/' + p, 'rb'))
+		umat = MatrixUtils.get_union_association_matrix(umat,kmat)
 		if counter == 1000:
 			break
 
-	g = GraphUtils.get_domain_graph(vnames, enames)
-	pickle.dump(g, open(graph_file_name, 'wb'))
+	pickle.dump(umat, open('domain-mat_' + graph_file_name, 'wb'), pickle.HIGHEST_PROTOCOL)
+	g = GraphUtils.get_graph_from_matrix(umat,density)
+	log.info('#vertices, #edges: ' + str(len(g.vs)) + ', ' + str(len(g.es))) 
+	pickle.dump(g, open(graph_file_name, 'wb'), pickle.HIGHEST_PROTOCOL)
 	
 	
